@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.educandoweb.course.entities.User;
@@ -15,7 +16,7 @@ public class UserService {
 
     @Autowired
     private UserRepository repository;
-    
+
     public List<User> findAll() {
         return repository.findAll();
     }
@@ -30,7 +31,13 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        repository.deleteById(id);
+        try {
+            repository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ResourceNotFoundException(id);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+        }
     }
 
     public User update(Long id, User obj) {
